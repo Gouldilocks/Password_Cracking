@@ -35,40 +35,46 @@ def getHash(password):
 
 hashes = {}
 hash_keys = set()
+cracked_passwords = [] 
 with open("hashes.txt", "r") as f:
   for line in f:
     pass_to_add = line.strip()
     hashes[pass_to_add] = '______'
     hash_keys.add(pass_to_add)
 
-cracked_passwords = [] 
-with open("rockyou.txt", "r", errors='ignore') as f:
-  for line in f:
-    list_of_hash_to_pass = get_list_of_others(line.strip())
+def crack_passwords(hints):
+  with open(hints, "r", errors='ignore') as f:
+    for line in f:
+      list_of_hash_to_pass = get_list_of_others(line.strip())
 
-    # strip new line character
-    # password = line.strip()
+      # strip new line character
+      # password = line.strip()
 
-    # find the hash of the password I want to check for
-    # salted_password = (salt + password).encode('utf-8')
-    # hash_value = hashlib.sha256(salted_password).hexdigest()
+      # find the hash of the password I want to check for
+      # salted_password = (salt + password).encode('utf-8')
+      # hash_value = hashlib.sha256(salted_password).hexdigest()
 
-    # Check if the password is in hashes.txt
-    # if hash_value in hash_keys and password not in cracked_passwords:
-    # for each of the elements in the list
-    for val in list_of_hash_to_pass:
-      # if the password is not in the list of cracked passwords
-      if val[1] not in cracked_passwords:
-        # if the hash is in the list of hashes
-        if val[0] in hashes:
-          print("Password Found: " + val[1])
-          cracked_passwords.append(val[1])
-          hashes[val[0]] = val[1]
+      # Check if the password is in hashes.txt
+      # if hash_value in hash_keys and password not in cracked_passwords:
+      # for each of the elements in the list
+      for val in list_of_hash_to_pass:
+        # if the password is not in the list of cracked passwords
+        if val[1] not in cracked_passwords:
+          # if the hash is in the list of hashes
+          if val[0] in hashes:
+            print("Password Found: " + val[1])
+            cracked_passwords.append(val[1])
+            hashes[val[0]] = val[1]
 
-print("Found " + str(len(cracked_passwords)) + " passwords")
+  print("Found " + str(len(cracked_passwords)) + " passwords")
 
+def print_hashes():
+  # Print the hash map to a file
+  with open("cracked.txt", "w") as f:
+    for key in hashes:
+      f.write(key + ":" + hashes[key] + "\n")
 
-# Print the hash map to a file
-with open("cracked.txt", "w") as f:
-  for key in hashes:
-    f.write(key + ":" + hashes[key] + "\n")
+if __name__ == "__main__":
+  crack_passwords("rockyoupt1.txt")
+  crack_passwords("rockyoupt2.txt")
+  crack_passwords("my_hints.txt")
