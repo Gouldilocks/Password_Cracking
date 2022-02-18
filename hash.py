@@ -29,14 +29,21 @@ def capitalize_first_letter(string):
   else:
     return string.upper()
 
-# TODO:run this function
-# returns a list of common words concatenated together
+# returns a list of concatenated common words in english
 def get_common_words():
   common_words = []
+  combined_words = []
+  returnMe = []
   with open("common_words.txt", "r") as f:
     for line in f:
-      common_words.append((getHash(line.strip()),line.strip()))
-  return common_words
+      common_words.append(line.strip())
+  for first_word in common_words:
+    for second_word in common_words:
+      full_word = first_word + second_word
+      combined_words.append(full_word)
+  for word in combined_words:
+    returnMe.append((getHash(word), word))
+  return returnMe
 
 # returns a list of all random 4-character strings
 def get_random_strings():
@@ -100,8 +107,15 @@ def crack_passwords(hints, pre_determined_corpus=False):
         # list_of_hash_to_pass.extend(number_endings(line.strip())) 
       # Parse a pre-determined list of words
       else:
+        print("got common words")
         list_of_hash_to_pass = get_common_words()
-        list_of_hash_to_pass.extend(get_random_strings())
+        copy = list_of_hash_to_pass
+        print("appending capitalized words")
+        list_of_hash_to_pass = []
+        for x in copy:
+          list_of_hash_to_pass.append((getHash(capitalize_first_letter(x[1])),capitalize_first_letter(x[1])))  
+        print("searching for correctly guessed passwords")
+#       list_of_hash_to_pass.extend(get_random_strings()) # Already Done
       # for each of the elements in the list
       for val in list_of_hash_to_pass:
         # if the password is not in the list of cracked passwords
@@ -147,19 +161,19 @@ if __name__ == "__main__":
   #  'my_hints.txt', 
   #  'john.txt',
    ]
-
   matches = 0
   newPasswords = 0
-  # Crack the passwords
-  tuple_ = crack_passwords(files[0], pre_determined_corpus=True)
-  matches += tuple_[0]
-  newPasswords += tuple_[1]
+  
+  # crack pre-determined corpus
+  # tuple_ = crack_passwords(files[0], pre_determined_corpus=True)
+  # matches += tuple_[0]
+  # newPasswords += tuple_[1]
 
   
-  # for file_name in files:
-  #   tuple_ = crack_passwords(file_name)
-  #   matches += tuple_[0] 
-  #   newPasswords += tuple_[1]
+  for file_name in files:
+    tuple_ = crack_passwords(file_name)
+    matches += tuple_[0] 
+    newPasswords += tuple_[1]
 
   # Print the hashes with their corresponding passwords with their corresponding passwords to output file
   print_hashes()
