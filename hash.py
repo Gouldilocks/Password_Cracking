@@ -23,6 +23,13 @@ def number_endings(password):
     list_of_others.append((getHash(password + str(i)),password + str(i)))
   return list_of_others
 
+def get_longest_words():
+  longest_words = []
+  with open("longest_words.txt", "r") as f:
+    for line in f:
+      longest_words.append((getHash(line.strip()),line.strip()))
+  return longest_words
+
 def capitalize_first_letter(string):
   if len(string) > 0:
     return string[0].upper() + string[1:]
@@ -114,8 +121,13 @@ def crack_passwords(hints, pre_determined_corpus=False):
       # Parse a pre-determined list of words
       else:
         print("got common words")
-        list_of_hash_to_pass = get_common_words()
-        list_of_hash_to_pass.extend(get_extension_of_list(list_of_hash_to_pass))
+        # list_of_hash_to_pass = get_common_words()
+        list_of_hash_to_pass = get_longest_words()
+        # extendMe = []
+        # for x in list_of_hash_to_pass:
+        #   extendMe.append(get_extension_of_list(x[1]))
+        # list_of_hash_to_pass.extend(extendMe)
+        
         # copy = list_of_hash_to_pass
         # print("appending capitalized words")
         # list_of_hash_to_pass = []
