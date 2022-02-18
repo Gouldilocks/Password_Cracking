@@ -85,7 +85,7 @@ def crack_passwords(hints):
         if val[1] not in cracked_passwords:
           # if the hash is in the list of hashes, we found a new Password!
           if val[0] in hashes:
-            print("**** NEW Password Found ****: " + val[1])
+            print("     **** NEW Password Found ****: " + val[1])
             cracked_passwords.append(val[1])
             hashes[val[0]] = val[1]
             newPasswords += 1
