@@ -19,6 +19,15 @@ with open("list_of_characters.txt", "r") as f:
   for line in f:
     list_of_characters.append(line.strip())
 
+# Get the list of hashed passwords from the file
+hashes = {}
+hash_keys = set()
+with open("hashes.txt", "r") as f:
+  for line in f:
+    pass_to_add = line.strip()
+    hashes[pass_to_add] = '______'
+    hash_keys.add(pass_to_add)
+
 # Function which returns a list of passwords with the original password + a number. Ex: password -> password22, up to 99
 def number_endings(password):
   list_of_others = []
@@ -68,41 +77,45 @@ def get_random_strings():
   return random_strings
 
 def large_file_hash():
+  print("Processing the 65 gb file Now")
+  print("This will take a while")
+  print("size of hashes: " + str(len(hashes)))
+  print("size of cracked passwords: " + str(len(cracked_passwords)))
+  print("size of hash keys: " + str(len(hash_keys)))
   newPasswords = 0
   matches = 0
-
-  new_word_in_large = open("new_word_in_large.txt", "w")
   currentList = []
   counter = 0
-  with open ("./sorted-wordlist", "r", errors='ignore') as f:
-    try:
-      for line in f:
-        currentList.append((getHash(line.strip()),line.strip()))
-        counter += 1
-        if counter % 1000000 == 0:
-          print("Processed " + str(counter) + " words")
-        if counter % 100000000 == 0:
-          print("Reset for RAM SAVING")
-          # process the data and reset currentList
-          for val in currentList:
-            # if the password is not in the list of cracked passwords
-            if val[1] not in cracked_passwords:
-              # if the hash is in the list of hashes, we found a new Password!
-              if val[0] in hashes:
-                print("     **** NEW Password Found ****: " + val[1])
-                cracked_passwords.append(val[1])
-                hashes[val[0]] = val[1]
-                newPasswords += 1
+  with open("new_word_in_large.txt", "w") as out:
+    with open ("./sorted-wordlist", "r", errors='ignore') as f:
+      try:
+        for line in f:
+          currentList.append((getHash(line.strip()),line.strip()))
+          counter += 1
+          if counter % 100000000 == 0:
+            print("Processed " + str(counter) + " words")
+          if counter % 100000000 == 0:
+            print("Reset for RAM SAVING")
+            # process the data and reset currentList
+            for val in currentList:
+              # if the password is not in the list of cracked passwords
+              if val[1] not in cracked_passwords:
+                # if the hash is in the list of hashes, we found a new Password!
+                if val[0] in hashes:
+                  print("     **** NEW Password Found ****: " + val[1])
+                  cracked_passwords.append(val[1])
+                  hashes[val[0]] = val[1]
+                  newPasswords += 1
+                  matches += 1
+                  out.write(val[1] + "\n")
+              # If we already found that password, notate it
+              else:
+                # print("Password Already Found: " + val[1])
                 matches += 1
-                new_word_in_large.write(val[1] + "\n")
-            # If we already found that password, notate it
-            else:
-              print("Password Already Found: " + val[1])
-              matches += 1
-          currentList = []
-    except Exception as e:
-      new_word_in_large.close()
-      print(e)
+            currentList = []
+      except Exception as e:
+        out.close()
+        print(e)
       
 
 # Gather all permutaions up to a 4-letter word
@@ -185,14 +198,7 @@ def getHash(password):
     return hash_value
 
 
-# Get the list of hashed passwords from the file
-hashes = {}
-hash_keys = set()
-with open("hashes.txt", "r") as f:
-  for line in f:
-    pass_to_add = line.strip()
-    hashes[pass_to_add] = '______'
-    hash_keys.add(pass_to_add)
+
 
 
 
@@ -215,7 +221,7 @@ def crack_passwords(hints, pre_determined_corpus=False):
         # list_of_hash_to_pass = get_common_words()
         # list_of_hash_to_pass = get_random_permutations()
         # list_of_hash_to_pass = get_longest_words()
-        list_of_hash_to_pass = large_file_hash()
+        # list_of_hash_to_pass = large_file_hash()
         # extendMe = []
         # for x in list_of_hash_to_pass:
         #   extendMe.append(get_extension_of_list(x[1]))
@@ -268,29 +274,29 @@ if __name__ == "__main__":
   # The names of the files to use as hints
 
   # get a list of all file names in a directory
-  files = os.listdir("./wordLists")
+  # files = os.listdir("./wordLists")
 
 
-  matches = 0
-  newPasswords = 0
+  # matches = 0
+  # newPasswords = 0
   
-  # crack pre-determined corpus
-  tuple_ = crack_passwords('./wordLists/' + files[0], pre_determined_corpus=True)
-  matches += tuple_[0]
-  newPasswords += tuple_[1]
+  # # # crack pre-determined corpus
+  # # tuple_ = crack_passwords('./wordLists/' + files[0], pre_determined_corpus=True)
+  # # matches += tuple_[0]
+  # # newPasswords += tuple_[1]
 
-  
+  # files = ['common_words.txt'] 
   # for file_name in files:
   #   print("Cracking " + file_name + "...")
-  #   tuple_ = crack_passwords('./wordLists/' + file_name)
+  #   tuple_ = crack_passwords(file_name)
   #   matches += tuple_[0] 
   #   newPasswords += tuple_[1]
 
-  # Print the hashes with their corresponding passwords with their corresponding passwords to output file
-  print_hashes()
+  # # Print the hashes with their corresponding passwords with their corresponding passwords to output file
+  # print_hashes()
 
-  # Update the list of cracked passwords
-  update_cracked_passwords()
-  # Print to the user the stats of the cracking
-  print("Password Bank holds " + str(len(cracked_passwords)) + " passwords")
-  print("Found " + str(newPasswords) + " new passwords")
+  # # Update the list of cracked passwords
+  # update_cracked_passwords()
+  # # Print to the user the stats of the cracking
+  # print("Password Bank holds " + str(len(cracked_passwords)) + " passwords")
+  # print("Found " + str(newPasswords) + " new passwords")
