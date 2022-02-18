@@ -29,6 +29,24 @@ def capitalize_first_letter(string):
   else:
     return string.upper()
 
+# TODO:run this function
+# returns a list of common words concatenated together
+def get_common_words():
+  common_words = []
+  with open("common_words.txt", "r") as f:
+    for line in f:
+      common_words.append((getHash(line.strip()),line.strip()))
+  return common_words
+
+# returns a list of all random 4-character strings
+def get_random_strings():
+  random_strings = []
+  with open("random_strings.txt", "r") as f:
+    for line in f:
+      random_strings.append((getHash(line.strip()),line.strip()))
+  return random_strings
+
+
 # returns a set of all possibilities of a string with one extra character
 def get_list_of_others(orig_password):
     list_of_others = []
@@ -69,16 +87,21 @@ with open("hashes.txt", "r") as f:
 
 
 # Crack the passwords :)
-def crack_passwords(hints):
+def crack_passwords(hints, pre_determined_corpus=False):
   matches = 0
   newPasswords = 0
   print("Cracking passwords in " + hints + "...")
   # Start cracking with the given file of hints
   with open(hints, "r", errors='ignore') as f:
     for line in f:
-      # get the list of possible passwords
-      list_of_hash_to_pass = get_list_of_others(line.strip())
-      # list_of_hash_to_pass.extend(number_endings(line.strip())) 
+      # generate the list of possible passwords
+      if not pre_determined_corpus:
+        list_of_hash_to_pass = get_list_of_others(line.strip())
+        # list_of_hash_to_pass.extend(number_endings(line.strip())) 
+      # Parse a pre-determined list of words
+      else:
+        list_of_hash_to_pass = get_common_words()
+        list_of_hash_to_pass.extend(get_random_strings())
       # for each of the elements in the list
       for val in list_of_hash_to_pass:
         # if the password is not in the list of cracked passwords
@@ -94,6 +117,8 @@ def crack_passwords(hints):
         else:
           print("Password Already Found: " + val[1])
           matches += 1
+      if pre_determined_corpus:
+        return matches, newPasswords
   return matches, newPasswords
 
 # print the hashes with their corresponding passwords
@@ -115,7 +140,7 @@ if __name__ == "__main__":
   files = \
   [
    'rockyoupt1.txt', 
-   'rockyoupt2.txt',
+  #  'rockyoupt2.txt',
   #  'phpbb.txt', 
   #  'hotmail.txt', 
   #  'myspace.txt', 
@@ -126,10 +151,15 @@ if __name__ == "__main__":
   matches = 0
   newPasswords = 0
   # Crack the passwords
-  for file_name in files:
-    tuple_ = crack_passwords(file_name)
-    matches += tuple_[0] 
-    newPasswords += tuple_[1]
+  tuple_ = crack_passwords(files[0], pre_determined_corpus=True)
+  matches += tuple_[0]
+  newPasswords += tuple_[1]
+
+  
+  # for file_name in files:
+  #   tuple_ = crack_passwords(file_name)
+  #   matches += tuple_[0] 
+  #   newPasswords += tuple_[1]
 
   # Print the hashes with their corresponding passwords with their corresponding passwords to output file
   print_hashes()
