@@ -1,4 +1,5 @@
 import hashlib
+import os
 
 # Import the list of passwords I've already cracked
 cracked_passwords = [] 
@@ -60,6 +61,22 @@ def get_random_strings():
       random_strings.append((getHash(line.strip()),line.strip()))
   return random_strings
 
+# Gather all permutaions up to a 4-letter word
+def get_random_permutations():
+  returnMe = get_random_strings()
+  four_letter_words = []
+  for word in returnMe:
+    four_letter_words.append(word[1])
+
+  for x in four_letter_words:
+    # append the first 3 characters of the word
+    returnMe.append((getHash(x[0:3]),x[0:3]))
+    # append the first 2 characters of the word
+    returnMe.append((getHash(x[0:2]),x[0:2]))
+    # append the first character of the word
+    returnMe.append((getHash(x[0]),x[0]))
+  return returnMe
+
 # returns a list of words with the original word + 1 - 3 special characters
 def get_extension_of_list(list_of_hash_to_pass):
   returnMe = []
@@ -83,7 +100,7 @@ def get_list_of_others(orig_password):
     # list_of_others.append((getHash(capitalize_first_letter(orig_password)),capitalize_first_letter(orig_password)))
 
     # Append all possible character combos with the original word to the list
-    list_of_others.extend(get_extension_of_list(list_of_others)) 
+    # list_of_others.extend(get_extension_of_list(list_of_others)) 
 
     # return the list
     return list_of_others
@@ -110,7 +127,7 @@ with open("hashes.txt", "r") as f:
 def crack_passwords(hints, pre_determined_corpus=False):
   matches = 0
   newPasswords = 0
-  print("Cracking passwords in " + hints + "...")
+  # print("Cracking passwords in " + hints + "...")
   # Start cracking with the given file of hints
   with open(hints, "r", errors='ignore') as f:
     for line in f:
@@ -122,12 +139,13 @@ def crack_passwords(hints, pre_determined_corpus=False):
       else:
         print("got common words")
         # list_of_hash_to_pass = get_common_words()
-        list_of_hash_to_pass = get_longest_words()
+        list_of_hash_to_pass = get_random_permutations()
+        # list_of_hash_to_pass = get_longest_words()
         # extendMe = []
         # for x in list_of_hash_to_pass:
         #   extendMe.append(get_extension_of_list(x[1]))
         # list_of_hash_to_pass.extend(extendMe)
-        
+
         # copy = list_of_hash_to_pass
         # print("appending capitalized words")
         # list_of_hash_to_pass = []
@@ -161,6 +179,7 @@ def print_hashes():
     for key in hashes:
       f.write(key + ":" + hashes[key] + "\n")
 
+
 # Print the cracked passwords to a file
 def update_cracked_passwords():
   with open("Found_Passwords.txt", "w") as f:
@@ -170,27 +189,23 @@ def update_cracked_passwords():
 # Main function
 if __name__ == "__main__":
   # The names of the files to use as hints
-  files = \
-  [
-   'rockyoupt1.txt', 
-  #  'rockyoupt2.txt',
-  #  'phpbb.txt', 
-  #  'hotmail.txt', 
-  #  'myspace.txt', 
-  #  'my_hints.txt', 
-  #  'john.txt',
-   ]
+
+  # get a list of all file names in a directory
+  files = os.listdir("./wordLists")
+
+
   matches = 0
   newPasswords = 0
   
   # crack pre-determined corpus
-  tuple_ = crack_passwords(files[0], pre_determined_corpus=True)
+  tuple_ = crack_passwords('./wordLists/' + files[0], pre_determined_corpus=True)
   matches += tuple_[0]
   newPasswords += tuple_[1]
 
   
   # for file_name in files:
-  #   tuple_ = crack_passwords(file_name)
+  #   print("Cracking " + file_name + "...")
+  #   tuple_ = crack_passwords('./wordLists/' + file_name)
   #   matches += tuple_[0] 
   #   newPasswords += tuple_[1]
 
