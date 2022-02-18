@@ -53,6 +53,17 @@ def get_random_strings():
       random_strings.append((getHash(line.strip()),line.strip()))
   return random_strings
 
+# returns a list of words with the original word + 1 - 3 special characters
+def get_extension_of_list(list_of_hash_to_pass):
+  returnMe = []
+  for orig_password in list_of_hash_to_pass:
+    for first_char in list_of_characters:
+      returnMe.append((getHash(orig_password + first_char),orig_password + first_char))
+      for second_char in list_of_characters:
+        returnMe.append((getHash(orig_password + first_char + second_char),orig_password + first_char + second_char))
+        for third_char in list_of_characters:
+          returnMe.append((getHash(orig_password + first_char + second_char + third_char),orig_password + first_char + second_char + third_char))
+  return returnMe
 
 # returns a set of all possibilities of a string with one extra character
 def get_list_of_others(orig_password):
@@ -65,12 +76,7 @@ def get_list_of_others(orig_password):
     # list_of_others.append((getHash(capitalize_first_letter(orig_password)),capitalize_first_letter(orig_password)))
 
     # Append all possible character combos with the original word to the list
-    for first_char in list_of_characters:
-      list_of_others.append((getHash(orig_password + first_char),orig_password + first_char))
-      for second_char in list_of_characters:
-        list_of_others.append((getHash(orig_password + first_char + second_char),orig_password + first_char + second_char))
-        for third_char in list_of_characters:
-          list_of_others.append((getHash(orig_password + first_char + second_char + third_char),orig_password + first_char + second_char + third_char))
+    list_of_others.extend(get_extension_of_list(list_of_others)) 
 
     # return the list
     return list_of_others
@@ -109,11 +115,12 @@ def crack_passwords(hints, pre_determined_corpus=False):
       else:
         print("got common words")
         list_of_hash_to_pass = get_common_words()
-        copy = list_of_hash_to_pass
-        print("appending capitalized words")
-        list_of_hash_to_pass = []
-        for x in copy:
-          list_of_hash_to_pass.append((getHash(capitalize_first_letter(x[1])),capitalize_first_letter(x[1])))  
+        list_of_hash_to_pass.extend(get_extension_of_list(list_of_hash_to_pass))
+        # copy = list_of_hash_to_pass
+        # print("appending capitalized words")
+        # list_of_hash_to_pass = []
+        # for x in copy:
+        #   list_of_hash_to_pass.append((getHash(capitalize_first_letter(x[1])),capitalize_first_letter(x[1])))  
         print("searching for correctly guessed passwords")
 #       list_of_hash_to_pass.extend(get_random_strings()) # Already Done
       # for each of the elements in the list
@@ -165,15 +172,15 @@ if __name__ == "__main__":
   newPasswords = 0
   
   # crack pre-determined corpus
-  # tuple_ = crack_passwords(files[0], pre_determined_corpus=True)
-  # matches += tuple_[0]
-  # newPasswords += tuple_[1]
+  tuple_ = crack_passwords(files[0], pre_determined_corpus=True)
+  matches += tuple_[0]
+  newPasswords += tuple_[1]
 
   
-  for file_name in files:
-    tuple_ = crack_passwords(file_name)
-    matches += tuple_[0] 
-    newPasswords += tuple_[1]
+  # for file_name in files:
+  #   tuple_ = crack_passwords(file_name)
+  #   matches += tuple_[0] 
+  #   newPasswords += tuple_[1]
 
   # Print the hashes with their corresponding passwords with their corresponding passwords to output file
   print_hashes()
