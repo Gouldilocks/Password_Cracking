@@ -1,3 +1,5 @@
+from dataclasses import replace
+from fileinput import close
 import hashlib
 import os
 
@@ -26,9 +28,13 @@ def number_endings(password):
 
 def get_longest_words():
   longest_words = []
+  counter = 0
   with open("longest_words.txt", "r") as f:
     for line in f:
       longest_words.append((getHash(line.strip()),line.strip()))
+      counter += 1
+      if counter % 10000 == 0:
+        print("Processed " + str(counter) + " words")
   return longest_words
 
 def capitalize_first_letter(string):
@@ -61,6 +67,44 @@ def get_random_strings():
       random_strings.append((getHash(line.strip()),line.strip()))
   return random_strings
 
+def large_file_hash():
+  newPasswords = 0
+  matches = 0
+
+  new_word_in_large = open("new_word_in_large.txt", "w")
+  currentList = []
+  counter = 0
+  with open ("./sorted-wordlist", "r", errors='ignore') as f:
+    try:
+      for line in f:
+        currentList.append((getHash(line.strip()),line.strip()))
+        counter += 1
+        if counter % 1000000 == 0:
+          print("Processed " + str(counter) + " words")
+        if counter % 100000000 == 0:
+          print("Reset for RAM SAVING")
+          # process the data and reset currentList
+          for val in currentList:
+            # if the password is not in the list of cracked passwords
+            if val[1] not in cracked_passwords:
+              # if the hash is in the list of hashes, we found a new Password!
+              if val[0] in hashes:
+                print("     **** NEW Password Found ****: " + val[1])
+                cracked_passwords.append(val[1])
+                hashes[val[0]] = val[1]
+                newPasswords += 1
+                matches += 1
+                new_word_in_large.write(val[1] + "\n")
+            # If we already found that password, notate it
+            else:
+              print("Password Already Found: " + val[1])
+              matches += 1
+          currentList = []
+    except Exception as e:
+      new_word_in_large.close()
+      print(e)
+      
+
 # Gather all permutaions up to a 4-letter word
 def get_random_permutations():
   returnMe = get_random_strings()
@@ -75,6 +119,35 @@ def get_random_permutations():
     returnMe.append((getHash(x[0:2]),x[0:2]))
     # append the first character of the word
     returnMe.append((getHash(x[0]),x[0]))
+  return returnMe
+
+# returns a list of passwords with common words using leet speak
+def get_leet_speak():
+  leet_speak = {'A':[], 'B':[], 'C':[], 'D':[], 'E':[], 'F':[], 'G':[], 'H':[], 'I':[], 'J':[], 'K':[], 'L':[], 'M':[],'N':[], 'O':[], 'P':[], 'Q':[], 'R':[], 'S':[], 'T':[], 'U':[], 'V':[], 'W':[], 'X':[], 'Y':[], 'Z':[]}
+  returnMe = []
+  with open("leet_speak.txt", "r") as f:
+    for line in f:
+      element = line.split()
+      for i in range(len(element)-1):
+        # print("first element is: " + element[i])
+        # print("second element is: " + element[i+1])
+        if len(leet_speak[element[0]]) == 0:
+          leet_speak[element[0]] = [element[i+1]]
+        else:
+          leet_speak[element[0]].append(element[i + 1])
+  # print(leet_speak)
+  files = os.listdir("./wordLists")
+  for file in files:
+    print("Processing file: " + file)
+    with open("./wordLists/" + file, "r") as f:
+      for line in f:
+        word = line.strip()
+        for letter in word:
+          if letter.upper() in leet_speak:
+            for replacement in leet_speak[letter.upper()]:
+              # print("replacing " + str(letter) + " in " + word + " with " + replacement)
+              word = word.replace(letter, replacement)
+              returnMe.append((getHash(word),word))
   return returnMe
 
 # returns a list of words with the original word + 1 - 3 special characters
@@ -138,9 +211,11 @@ def crack_passwords(hints, pre_determined_corpus=False):
       # Parse a pre-determined list of words
       else:
         print("got common words")
+        # list_of_hash_to_pass = get_leet_speak()
         # list_of_hash_to_pass = get_common_words()
-        list_of_hash_to_pass = get_random_permutations()
+        # list_of_hash_to_pass = get_random_permutations()
         # list_of_hash_to_pass = get_longest_words()
+        list_of_hash_to_pass = large_file_hash()
         # extendMe = []
         # for x in list_of_hash_to_pass:
         #   extendMe.append(get_extension_of_list(x[1]))
@@ -188,6 +263,8 @@ def update_cracked_passwords():
 
 # Main function
 if __name__ == "__main__":
+  # Crack the passwords in large file:
+  large_file_hash()
   # The names of the files to use as hints
 
   # get a list of all file names in a directory
