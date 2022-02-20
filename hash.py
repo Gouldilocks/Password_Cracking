@@ -28,6 +28,12 @@ with open("hashes.txt", "r") as f:
     hashes[pass_to_add] = '______'
     hash_keys.add(pass_to_add)
 
+def test_single_word(word_to_test):
+  if getHash(word_to_test) in hash_keys:
+    print("    **** NEW Password Found **** : " + word_to_test)
+  else:
+    print("Password Not Found: " + word_to_test)
+
 # Function which returns a list of passwords with the original password + a number. Ex: password -> password22, up to 99
 def number_endings(password):
   list_of_others = []
@@ -53,7 +59,7 @@ def capitalize_first_letter(string):
     return string.upper()
 
 # returns a list of concatenated common words in english
-def get_common_words():
+def get_common_words_concatenated():
   common_words = []
   combined_words = []
   returnMe = []
@@ -62,6 +68,9 @@ def get_common_words():
       common_words.append(line.strip())
   for first_word in common_words:
     for second_word in common_words:
+      # print("concatenating " + first_word)
+      # print("with " + second_word)
+      # print("to get: " + first_word + second_word)
       full_word = first_word + second_word
       combined_words.append(full_word)
   for word in combined_words:
@@ -118,20 +127,30 @@ def large_file_hash():
         print(e)
       
 
-# Gather all permutaions up to a 4-letter word
+# Gather all permutaions up to a 5-letter word
 def get_random_permutations():
-  returnMe = get_random_strings()
-  four_letter_words = []
-  for word in returnMe:
-    four_letter_words.append(word[1])
-
-  for x in four_letter_words:
-    # append the first 3 characters of the word
-    returnMe.append((getHash(x[0:3]),x[0:3]))
-    # append the first 2 characters of the word
-    returnMe.append((getHash(x[0:2]),x[0:2]))
-    # append the first character of the word
-    returnMe.append((getHash(x[0]),x[0]))
+  returnMe = []
+  characters = []
+  # read in the file of all alphabetical characters  
+  with open("alphanum.txt", "r") as f:
+    for line in f:
+      characters.append(line.strip())
+  # get all permutations of the characters
+  for first_char in characters:
+    returnMe.append((getHash(first_char),first_char))
+    print("appending " + first_char)
+    for second_char in characters:
+      returnMe.append((getHash(first_char + second_char),first_char + second_char))
+      # print("appending " + first_char + second_char)
+      for third_char in characters:
+        returnMe.append((getHash(first_char + second_char + third_char),first_char + second_char + third_char))
+        # print("appending " + first_char + second_char + third_char)
+        for fourth_char in characters:
+          returnMe.append((getHash(first_char + second_char + third_char + fourth_char),first_char + second_char + third_char + fourth_char))
+          # print("appending " + first_char + second_char + third_char + fourth_char)
+          for fifth_char in characters:
+            returnMe.append((getHash(first_char + second_char + third_char + fourth_char + fifth_char),first_char + second_char + third_char + fourth_char + fifth_char))
+            # print("appending " + first_char + second_char + third_char + fourth_char + fifth_char)
   return returnMe
 
 # returns a list of passwords with common words using leet speak
@@ -197,11 +216,6 @@ def getHash(password):
     hash_value = hashlib.sha256(salted_password).hexdigest()
     return hash_value
 
-
-
-
-
-
 # Crack the passwords :)
 def crack_passwords(hints, pre_determined_corpus=False):
   matches = 0
@@ -212,28 +226,35 @@ def crack_passwords(hints, pre_determined_corpus=False):
     for line in f:
       # generate the list of possible passwords
       if not pre_determined_corpus:
+        print("Generating list of possible passwords...")
         list_of_hash_to_pass = get_list_of_others(line.strip())
         # list_of_hash_to_pass.extend(number_endings(line.strip())) 
       # Parse a pre-determined list of words
       else:
-        print("got common words")
+        print("Begin Reading In Pre-Determined Corpus")
+
+        # Read in the pre-determined corpus
         # list_of_hash_to_pass = get_leet_speak()
-        # list_of_hash_to_pass = get_common_words()
-        # list_of_hash_to_pass = get_random_permutations()
+        # list_of_hash_to_pass = get_common_words_concatenated()
+        list_of_hash_to_pass = get_random_permutations()
         # list_of_hash_to_pass = get_longest_words()
-        # list_of_hash_to_pass = large_file_hash()
+
+
+        # Extends the current list of possible passwords with some sort of permutation of the same words
         # extendMe = []
         # for x in list_of_hash_to_pass:
         #   extendMe.append(get_extension_of_list(x[1]))
         # list_of_hash_to_pass.extend(extendMe)
+
 
         # copy = list_of_hash_to_pass
         # print("appending capitalized words")
         # list_of_hash_to_pass = []
         # for x in copy:
         #   list_of_hash_to_pass.append((getHash(capitalize_first_letter(x[1])),capitalize_first_letter(x[1])))  
+
+
         print("searching for correctly guessed passwords")
-#       list_of_hash_to_pass.extend(get_random_strings()) # Already Done
       # for each of the elements in the list
       for val in list_of_hash_to_pass:
         # if the password is not in the list of cracked passwords
@@ -269,19 +290,19 @@ def update_cracked_passwords():
 
 # Main function
 if __name__ == "__main__":
+  # test_single_word("phanekham")
   # Crack the passwords in large file:
-  large_file_hash()
-  # The names of the files to use as hints
+  # large_file_hash()
 
   # get a list of all file names in a directory
-  # files = os.listdir("./wordLists")
+  files = os.listdir("./wordLists")
 
 
   # matches = 0
   # newPasswords = 0
   
   # # # crack pre-determined corpus
-  # # tuple_ = crack_passwords('./wordLists/' + files[0], pre_determined_corpus=True)
+  tuple_ = crack_passwords('./wordLists/' + files[0], pre_determined_corpus=True)
   # # matches += tuple_[0]
   # # newPasswords += tuple_[1]
 
