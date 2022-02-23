@@ -245,7 +245,7 @@ def get_extension_of_list(list_of_hash_to_pass):
 
 def get_list_of_others(orig_list):
     print('in list of others')
-    list_of_others = [None] * 100000000
+    list_of_others = []
     characters = []
     # read in the file of all alphabetical characters
     with open("alphanum.txt", "r") as f:
