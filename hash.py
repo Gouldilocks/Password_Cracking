@@ -266,6 +266,7 @@ def get_list_of_others(orig_list):
                 # if the hash is in the list of hashes, we found a new Password!
                 if val[0] in hashes:
                     print("     **** NEW Password Found ****: " + val[1])
+                    return l
                     cracked_passwords.append(val[1])
                     hashes[val[0]] = val[1]
             # If we already found that password, notate it
