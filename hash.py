@@ -255,22 +255,22 @@ def get_list_of_others(orig_list):
         print("password: " + orig_password[1])
         for first_char in characters:
           list_of_others.append((getHash(orig_password[1] + first_char), orig_password[1] + first_char))
-          for second_char in characters:
-              list_of_others.append((getHash(orig_password[1] + first_char + second_char), orig_password[1] + first_char + second_char))
-              for third_char in characters:
-                  list_of_others.append((getHash(orig_password[1] + first_char + second_char + third_char), orig_password[1] + first_char + second_char + third_char))
+          # for second_char in characters:
+          #     list_of_others.append((getHash(orig_password[1] + first_char + second_char), orig_password[1] + first_char + second_char))
+          #     for third_char in characters:
+          #         list_of_others.append((getHash(orig_password[1] + first_char + second_char + third_char), orig_password[1] + first_char + second_char + third_char))
 
-    # for each of the elements in the list
-    for val in list_of_others: # if the password is not in the list of cracked passwords
-        if val[1] not in cracked_passwords:
-            # if the hash is in the list of hashes, we found a new Password!
-            if val[0] in hashes:
-                print("     **** NEW Password Found ****: " + val[1])
-                cracked_passwords.append(val[1])
-                hashes[val[0]] = val[1]
-        # If we already found that password, notate it
-        else:
-            print("Password Already Found: " + val[1])
+        # for each of the elements in the list
+        for val in list_of_others: # if the password is not in the list of cracked passwords
+            if val[1] not in cracked_passwords:
+                # if the hash is in the list of hashes, we found a new Password!
+                if val[0] in hashes:
+                    print("     **** NEW Password Found ****: " + val[1])
+                    cracked_passwords.append(val[1])
+                    hashes[val[0]] = val[1]
+            # If we already found that password, notate it
+            else:
+                print("Password Already Found: " + val[1])
 
     # Append a first-capitalized version of the original password to the list
     # list_of_others.append((getHash(capitalize_first_letter(orig_password)),capitalize_first_letter(orig_password)))
