@@ -15,8 +15,12 @@ https://github.com/danielmiessler/SecLists
 Some Heuristic Inputs
 
 # Running the program
-You can run the program by typing the following command:
+### Pre-Requisite
+Download the "wordLists" folder from the github repo [here](https://github.com/Gouldilocks/Password_Cracking/tree/master/wordLists)
 
+
+### Running the command
+You can run the program by typing the following command:
 ```
 python3 hash.py
 ```
