@@ -299,10 +299,10 @@ def crack_passwords(hints, pre_determined_corpus=False):
     # Start cracking with the given file of hints
     list_of_hash_to_pass = []
     with open(hints, "r", errors='ignore') as f:
+        print("Generating list of possible passwords...")
         for line in f:
             # generate the list of possible passwords
             if not pre_determined_corpus:
-                print("Generating list of possible passwords...")
                 # You can uncomment any one of these to use those functions.
                 # list_of_hash_to_pass = get_leet_speak()
                 # list_of_hash_to_pass = get_common_words_concatenated()
@@ -310,14 +310,14 @@ def crack_passwords(hints, pre_determined_corpus=False):
                 # list_of_hash_to_pass = get_longest_words()
                 # list_of_hash_to_pass = get_random_strings()
                 # list_of_hash_to_pass = get_list_of_others(line.strip())
-
+                pass
                 # list_of_hash_to_pass.extend(number_endings(line.strip()))
             # Parse a pre-determined list of words
             else:
                 print("Begin Reading In Pre-Determined Corpus")
                 list_of_hash_to_pass.append((getHash(line.rstrip()), line.rstrip()))
 
-            print("searching for correctly guessed passwords")
+            # print("searching for correctly guessed passwords")
             # for each of the elements in the list
             for val in list_of_hash_to_pass:
                 # if the password is not in the list of cracked passwords
@@ -381,7 +381,7 @@ if __name__ == "__main__":
 
     for file_name in files:
       print("Cracking " + file_name + "...")
-      tuple_ = crack_passwords(file_name)
+      tuple_ = crack_passwords("./wordLists/" + file_name)
       matches += tuple_[0]
       newPasswords += tuple_[1]
 
